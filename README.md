@@ -1,4 +1,4 @@
-# CRM система на Vue
+# Блог
 
 ## Project setup
 ```
