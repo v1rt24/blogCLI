@@ -1,5 +1,7 @@
 # Блог
 
+## База данных: firebase
+
 ## Project setup
 ```
 npm install
