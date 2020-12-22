@@ -2,9 +2,13 @@
   <div class="container">
     <h1 class="center">Заказы</h1>
 
-    <ul class="collection">
+    <div v-if="!ORDERS.length">
+      Заказов пока нет
+    </div>
+
+    <ul class="collection" v-else>
       <li class="collection-item"
-          v-for="order of orders"
+          v-for="order of ORDERS"
           :key="order.id"
       >
         <div class="wrapperCollection">
@@ -14,7 +18,7 @@
             <span>{{ order.phone }}</span>
           </label>
           <router-link
-              :to="`/ad/${order.adId}`"
+              :to="`/ad/${order.alias}`"
               class="waves-effect waves-light btn-small blue darken-2 secondary-content"
           >
             Открыть
@@ -26,26 +30,40 @@
 </template>
 
 <script>
+import { mapActions, mapGetters } from 'vuex';
+
 export default {
   name: 'Orders',
   metaInfo: {
     title: 'Заказы',
   },
-  data: () => ({
-    orders: [
-      {
-        id: 1,
-        name: 'Роман',
-        phone: '+79298134567',
-        adId: '8',
-        done: false,
-      },
-    ],
-  }),
+  computed: {
+    ...mapGetters('orders', {
+      ORDERS: 'getOrders',
+    }),
+  },
   methods: {
-    markDone (order) {
-      order.done = true;
+    ...mapActions('orders', {
+      FETCH_ORDERS: 'fetchOrders',
+      MARK_ORDER_DONE: 'markOrderDone',
+    }),
+    async markDone (order) {
+      try {
+        await this.MARK_ORDER_DONE(order.id);
+        order.done = true;
+      }
+      catch (error) {
+        console.log(error);
+      }
     },
+  },
+  async created () {
+    try {
+      await this.FETCH_ORDERS();
+    }
+    catch (error) {
+      console.log(error);
+    }
   },
 };
 </script>

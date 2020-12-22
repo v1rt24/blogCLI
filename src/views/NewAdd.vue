@@ -24,6 +24,23 @@
           </div>
           <div class="row">
             <div class="input-field col s12">
+              <input
+                  id="alias"
+                  type="text"
+                  v-model.trim="alias"
+                  :class="{invalid: $v.alias.$dirty && !$v.alias.required}"
+              >
+              <label for="alias">Алиас</label>
+              <span
+                  class="error"
+                  v-if="$v.alias.$dirty && !$v.alias.required"
+              >
+              Введите алиас
+            </span>
+            </div>
+          </div>
+          <div class="row">
+            <div class="input-field col s12">
               <textarea
                   class="materialize-textarea"
                   id="desc"
@@ -41,25 +58,25 @@
             </div>
           </div>
 
-          <!---->
+          <!-- Загрузка картинки -->
           <div class="file-field input-field">
             <div class="btn blue darken-1">
               <span>Файл</span>
-              <input type="file" @change="loadImgMet">
+              <input type="file" @change="loadImgMet" accept="image/*">
             </div>
             <div class="file-path-wrapper">
               <input class="file-path validate" type="text">
             </div>
             <span
                 class="error"
-                v-if="$v.loadImg.$dirty && !$v.loadImg.required"
+                v-if="$v.imgSrc.$dirty && !$v.imgSrc.required"
             >
               Добавьте картинку
             </span>
           </div>
 
           <div style="margin-bottom: 30px;">
-            <img src="https://i.7fon.org/1000/m597877.jpg" height="150" alt="">
+            <img :src="imgSrc" height="150" alt="" v-if="imgSrc">
 
             <div class="switch">
               <div>Добавить в слайдер на главной?</div>
@@ -71,9 +88,13 @@
               </label>
             </div>
           </div>
-          <!---->
+          <!-- /Загрузка картинки -->
 
-          <button class="btn waves-effect waves-light blue darken-1" type="submit">
+          <button
+              class="btn waves-effect waves-light blue darken-1"
+              :disabled="LOADING"
+              type="submit"
+          >
             Войти
             <i class="material-icons right">send</i>
           </button>
@@ -85,6 +106,7 @@
 
 <script>
 import { required } from 'vuelidate/lib/validators';
+import { mapActions, mapGetters } from 'vuex';
 
 export default {
   name: 'NewAdd',
@@ -93,23 +115,36 @@ export default {
   },
   data: () => ({
     title: '',
+    alias: '',
     description: '',
     promo: false,
-    loadImg: '',
+    image: null,
+    imgSrc: '',
   }),
   validations: {
     title: {
       required,
     },
+    alias: {
+      required,
+    },
     description: {
       required,
     },
-    loadImg: {
+    imgSrc: {
       required,
     },
   },
+  computed: {
+    ...mapGetters('globals', {
+      LOADING: 'getLoading',
+    }),
+  },
   methods: {
-    adHandler () {
+    ...mapActions('ads', {
+      CREATE_ADS: 'createAds',
+    }),
+    async adHandler () {
       if (this.$v.$invalid) {
         this.$v.$touch();
         return false;
@@ -117,19 +152,34 @@ export default {
 
       const dataForm = {
         title: this.title,
+        alias: this.alias,
         description: this.description,
+        image: this.image,
         promo: this.promo,
       };
-      console.log(dataForm);
+
+      try {
+        await this.CREATE_ADS(dataForm);
+        this.$router.push({
+          name: 'List',
+        });
+      }
+      catch (error) {
+        console.log(error);
+      }
     },
     loadImgMet (event) {
-      const img = event.target.files[0];
-      if (img) {
-        console.log(img);
-        this.loadImg = '1';
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          this.imgSrc = reader.result;
+        };
+        reader.readAsDataURL(file);
+        this.image = file;
       }
       else {
-        this.loadImg = '';
+        this.imgSrc = '';
       }
     },
   },

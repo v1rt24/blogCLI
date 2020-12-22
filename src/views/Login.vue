@@ -45,7 +45,7 @@
             </span>
             </div>
           </div>
-          <button class="btn waves-effect waves-light blue darken-1" type="submit">
+          <button class="btn waves-effect waves-light blue darken-1" type="submit" :disabled="LOADING">
             Войти
             <i class="material-icons right">send</i>
           </button>
@@ -56,6 +56,7 @@
 </template>
 
 <script>
+import { mapActions, mapGetters } from 'vuex';
 import { required, email } from 'vuelidate/lib/validators';
 
 export default {
@@ -76,8 +77,19 @@ export default {
       required,
     },
   },
+  computed: {
+    ...mapGetters('globals', {
+      LOADING: 'getLoading',
+    }),
+  },
   methods: {
-    loginHandler () {
+    ...mapActions('user', {
+      LOGIN: 'loginUser',
+    }),
+    ...mapActions('globals', {
+      ERROR: 'error',
+    }),
+    async loginHandler () {
       if (this.$v.$invalid) {
         this.$v.$touch();
         return false;
@@ -87,8 +99,24 @@ export default {
         email: this.email,
         password: this.password,
       };
-      console.log(dataForm);
+
+      try {
+        await this.LOGIN(dataForm);
+        this.$router.push({
+          name: 'Home',
+        });
+      }
+      catch (error) {
+        // console.log(error);
+      }
     },
+  },
+  mounted () {
+    const loginError = this.$route.query.loginError;
+
+    if (loginError) {
+      this.ERROR('Авторизуйтесь');
+    }
   },
 };
 </script>

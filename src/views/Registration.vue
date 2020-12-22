@@ -52,7 +52,7 @@
             </span>
             </div>
           </div>
-          <button class="btn waves-effect waves-light blue darken-1" type="submit" :disabled="$v.$invalid">
+          <button class="btn waves-effect waves-light blue darken-1" type="submit" :disabled="$v.$invalid || LOADING">
             Зарегистрироваться
             <i class="material-icons right">send</i>
           </button>
@@ -63,6 +63,7 @@
 </template>
 
 <script>
+import { mapActions, mapGetters } from 'vuex';
 import { required, email, minLength } from 'vuelidate/lib/validators';
 
 export default {
@@ -84,8 +85,16 @@ export default {
       minLength: minLength(6),
     },
   },
+  computed: {
+    ...mapGetters('globals', {
+      LOADING: 'getLoading',
+    }),
+  },
   methods: {
-    loginHandler () {
+    ...mapActions('user', {
+      REGISTER_USER: 'registerUser',
+    }),
+    async loginHandler () {
       if (this.$v.$invalid) {
         this.$v.$touch();
         return false;
@@ -95,7 +104,16 @@ export default {
         email: this.email,
         password: this.password,
       };
-      console.log(dataForm);
+
+      try {
+        await this.REGISTER_USER(dataForm);
+        this.$router.push({
+          name: 'Home',
+        });
+      }
+      catch (error) {
+        // console.log(error);
+      }
     },
   },
 };

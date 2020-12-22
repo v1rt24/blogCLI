@@ -2,12 +2,16 @@
   <div class="container">
     <h3 class="center">Мои объявления</h3>
 
-    <div class="wrapperCollection">
+    <div v-if="!ADS.length">
+      <h5 class="center">У Вас пока нет объявлений</h5>
+    </div>
+
+    <div class="wrapperCollection" v-else>
       <div class="collection__item"
-           v-for="ad of ads"
+           v-for="ad of ADS"
            :key="ad.id"
       >
-        <div>
+        <div class="collection__img">
           <img :src="ad.imgSrc" :alt="ad.title">
         </div>
         <div class="collection__title">
@@ -15,7 +19,7 @@
           <p>{{ ad.description }}</p>
         </div>
         <div class="collection__but">
-          <router-link :to="`/ad/${ad.id}`" class="waves-effect waves-light btn blue darken-1">Открыть</router-link>
+          <router-link :to="`/ad/${ad.alias}`" class="waves-effect waves-light btn blue darken-1">Открыть</router-link>
         </div>
       </div>
     </div>
@@ -23,29 +27,18 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+
 export default {
   name: 'AdList',
   metaInfo: {
     title: 'Мои объявления',
   },
-  data: () => ({
-    ads: [
-      {
-        id: 1,
-        imgSrc: 'https://i.7fon.org/1000/x86444.jpg',
-        title: 'This is our big Tagline!',
-        description: 'Here our small slogan.',
-        promo: true,
-      },
-      {
-        id: 2,
-        imgSrc: 'https://i.7fon.org/1000/x86444.jpg',
-        title: 'This is our big Tagline!',
-        description: 'Here our small slogan.',
-        promo: true,
-      },
-    ],
-  }),
+  computed: {
+    ...mapGetters('ads', {
+      ADS: 'myAds',
+    }),
+  },
 };
 </script>
 
@@ -61,10 +54,27 @@ export default {
   margin-bottom: 10px;
 }
 
-.collection__item img {
+.collection__img {
+  position: relative;
+  flex-shrink: 0;
+  width: 300px;
   height: 150px;
   display: block;
   margin-right: 20px;
+}
+
+.collection__img img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.collection__title {
+  height: 150px;
+  overflow: hidden;
 }
 
 .collection__but {

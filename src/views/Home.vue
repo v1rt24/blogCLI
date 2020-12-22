@@ -3,7 +3,7 @@
     <div class="slider" ref="slider">
       <ul class="slides">
         <li
-            v-for="ad of ads"
+            v-for="ad of ADS_PROMO"
             :key="ad.id"
         >
           <img :src="ad.imgSrc">
@@ -13,9 +13,9 @@
           </div>
           <router-link
               class="waves-effect waves-light btn-small blue darken-1 sliderLink"
-              :to="`/ad/${ad.id}`"
+              :to="`/ad/${ad.alias}`"
           >
-            {{ad.title}}
+            {{ ad.title }}
           </router-link>
         </li>
       </ul>
@@ -25,7 +25,7 @@
       <div class="row">
         <div
             class="col s12 m6 l4"
-            v-for="ad of ads"
+            v-for="ad of ADS"
             :key="ad.id"
         >
           <div class="card">
@@ -46,8 +46,11 @@
               <p>{{ ad.description }}</p>
             </div>
             <div class="card-action">
-              <router-link class="waves-effect btn-flat" :to="`/ad/${ad.id}`">Открыть</router-link>
-              <button class="waves-effect waves-light btn cyan">Купить</button>
+              <router-link class="waves-effect btn-flat" :to="`/ad/${ad.alias}`">Открыть</router-link>
+              <ByModal
+                  bg="cyan"
+                  :ad="ad"
+              />
             </div>
           </div>
         </div>
@@ -57,6 +60,8 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+
 let slider = null;
 
 export default {
@@ -64,45 +69,12 @@ export default {
   metaInfo: {
     title: 'Главная',
   },
-  data: () => ({
-    ads: [
-      {
-        id: 1,
-        imgSrc: 'https://i.7fon.org/1000/x86444.jpg',
-        title: 'This is our big Tagline!',
-        description: 'Here our small slogan.',
-        promo: true,
-      },
-      {
-        id: 2,
-        imgSrc: 'https://i.7fon.org/1000/c105373.jpg',
-        title: 'This is our big Tagline!',
-        description: 'Here our small slogan.',
-        promo: true,
-      },
-      {
-        id: 3,
-        imgSrc: 'https://i.7fon.org/1000/x228850.jpg',
-        title: 'This is our big Tagline!',
-        description: 'Here our small slogan.',
-        promo: true,
-      },
-      {
-        id: 4,
-        imgSrc: 'https://i.7fon.org/1000/g703543.jpg',
-        title: 'This is our big Tagline!',
-        description: 'Here our small slogan.',
-        promo: false,
-      },
-      {
-        id: 5,
-        imgSrc: 'https://i.7fon.org/1000/m597877.jpg',
-        title: 'This is our big Tagline!',
-        description: 'Here our small slogan.',
-        promo: true,
-      },
-    ],
-  }),
+  computed: {
+    ...mapGetters('ads', {
+      ADS: 'ads',
+      ADS_PROMO: 'promoAds',
+    }),
+  },
   mounted () {
     slider = M.Slider.init(this.$refs.slider, {
       indicators: false,
@@ -131,11 +103,8 @@ export default {
 }
 
 .card-action {
-  text-align: right;
-}
-
-.card-action button {
-  margin-left: 5px;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .sliderLink {

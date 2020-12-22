@@ -4,15 +4,21 @@
       <div class="col s12 m8 offset-m2 wrapperCard">
         <div class="card">
           <div class="card-image">
-            <img src="https://i.7fon.org/1000/x86444.jpg" alt="">
-            <span class="card-title">This is our big Tagline!</span>
+            <img :src="ad.imgSrc" :alt="ad.title">
+            <span class="card-title">{{ ad.title }}</span>
           </div>
           <div class="card-content">
-            <p>Here our small slogan.</p>
+            <p>{{ ad.description }}</p>
           </div>
           <div class="card-action">
-            <router-link :to="'#'" class="waves-effect waves-light btn blue darken-1 btn-flat white-text">Редактировать</router-link>
-            <router-link :to="'#'" class="waves-effect waves-light btn teal darken-3">Купить</router-link>
+            <edit-ad-modal
+                v-if="isOwnew"
+                :ad="ad"
+            />
+            <ByModal
+                bg="teal darken-3"
+                :ad="ad"
+            />
           </div>
         </div>
       </div>
@@ -21,24 +27,41 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+import editAdModal from '@/components/editAdModal';
+
 export default {
   name: 'Ad',
+  props: {
+    alias: {
+      type: String,
+      required: true,
+    },
+  },
   metaInfo () {
     return {
-      title: this.ads[0].title,
+      title: this.ad.title,
     };
   },
-  data: () => ({
-    ads: [
-      {
-        id: 1,
-        imgSrc: 'https://i.7fon.org/1000/x86444.jpg',
-        title: 'This is our big Tagline!',
-        description: 'Here our small slogan.',
-        promo: true,
+  computed: {
+    ...mapGetters('ads', {
+      AD_BY_ID: 'adById',
+    }),
+    ...mapGetters('user', {
+      USER: 'getUser',
+    }),
+    ad () {
+      return this.AD_BY_ID(this.alias);
+    },
+    isOwnew () {
+      if (this.USER) {
+        return this.ad.ownerId === this.USER.id;
       }
-    ],
-  }),
+    },
+  },
+  components: {
+    editAdModal,
+  },
 };
 </script>
 
