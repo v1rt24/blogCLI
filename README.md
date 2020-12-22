@@ -1,4 +1,6 @@
-# CRM система на Vue
+# Блог
+
+## База данных: firebase
 
 ## Project setup
 ```
